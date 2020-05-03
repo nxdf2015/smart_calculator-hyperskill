@@ -1,5 +1,9 @@
 from re import match,compile
 
+
+variables={}
+
+
 def parse(cmd):
     """
     if cmd is a number return number
@@ -63,31 +67,54 @@ def get_items(cmd):
 
 def eval_expression(cmd):
     """
-    evaluate expression
+    evaluate expression45
+
     """
     operator= "+"
     result=0
     for item in get_items(cmd):
-        try:
-            n = get_number(item)
+            if not item in "+-":
+                if is_valid_identifier(item):
+                    if item in variables :
+                        n = variables[item]
+                    else:
 
-            result = get_result(operator,result,n)
-            operator = None
-        except:
-            operator=get_operator(item)
+                        raise Exception()
+
+                elif match(r"\d+",item):
+                    n = get_number(item)
+
+                result =  result=get_result(operator,result,n)
+            else:
+                operator=get_operator(item)
+
+
+
+
 
     return result
 
 
+def is_assignment(cmd):
+    return match("^([^=]+)\s*?=\s*?([^=]+)$",cmd)
+
+def is_valid_identifier(line):
+    return match("[a-zA-Z]+$",line)
+
+def is_valid_assignment(line):
+    pattern=r"(\+|-)?\s*((\d+|([a-zA-Z]+)|((\d+|[a-zA-Z]+)\s*[+-]+\s?)+\s*(\d+|[a-zA-Z]+)))$"
+    return match(pattern,line)
 
 
 
 
+def set_variable(identifier,assignment):
+    variables[identifier]=eval_expression(assignment)
 
 def calculator():
     expression = compile(r"(\+|-)?\s*(\d+|(\d+\s*[+-]+\s?)+\s*\d+)$")
     while True:
-        cmd=input()
+        cmd=input().replace(" ","")
 
         if cmd=="":
             continue
@@ -98,14 +125,30 @@ def calculator():
             else:
                 print("Unknown command")
 
+        elif is_assignment(cmd) :
+            identifier,assignement=cmd.split("=")
 
-        elif expression.match(cmd):
-            result=eval_expression(cmd)
-            print(get_number(result))
+            if not is_valid_identifier(identifier):
+                print("Invalid identifier")
+            elif not  is_valid_assignment(assignement):
+                print("Invalid assignment")
+            else:
+                set_variable(identifier,assignement)
+
+        elif cmd.count("=") > 1:
+            print("Invalid assignment")
+
+        elif is_valid_assignment(cmd):
+            try:
+                result=eval_expression(cmd)
+                print(get_number(result))
+            except:
+                print("Unknown variable")
+
         else:
             print("Invalid expression")
 
     print("Bye!")
 
-
 calculator()
+
