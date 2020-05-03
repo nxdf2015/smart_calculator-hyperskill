@@ -1,15 +1,26 @@
+from re import match,compile
 
 def parse(cmd):
+    """
+    if cmd is a number return number
+    else raise exception
+    """
     try:
         return list(map(float,cmd.split(" ")))
     except:
         return False
 
-def get_result(operator,x,y):
+def get_result(operator ,x ,y ):
+    """
+    x,y : number
+    operator : string
+    return result of x + (operator) + y
+    """
     if operator=="+":
         return x + y
     elif operator == "-":
         return x - y
+
 
 def get_number(item):
     x = float(item)
@@ -19,10 +30,16 @@ def get_number(item):
         return x
 
 def get_operator(item):
+    """
+    return "+" or "-"
+    """
     return "+" if item.count("-") % 2 == 0 else "-"
 
 
 def get_items(cmd):
+   """
+   return a list of string , example : "+25-9" -> ["+","25","-","9"]
+   """
    i = 0
    items=[]
    cmd=cmd.replace(" ","")
@@ -44,12 +61,10 @@ def get_items(cmd):
    return items
 
 
-
-
-
-
-def parse_numbers(cmd):
-
+def eval_expression(cmd):
+    """
+    evaluate expression
+    """
     operator= "+"
     result=0
     for item in get_items(cmd):
@@ -70,14 +85,25 @@ def parse_numbers(cmd):
 
 
 def calculator():
+    expression = compile(r"(\+|-)?\s*(\d+|(\d+\s*[+-]+\s?)+\s*\d+)$")
     while True:
         cmd=input()
+
         if cmd=="":
             continue
-        elif cmd=="/exit":
-            break
-        result=parse_numbers(cmd)
-        print(get_number(result))
+
+        if cmd.startswith("/"):
+            if cmd[1:] == "exit":
+                break
+            else:
+                print("Unknown command")
+
+
+        elif expression.match(cmd):
+            result=eval_expression(cmd)
+            print(get_number(result))
+        else:
+            print("Invalid expression")
 
     print("Bye!")
 
